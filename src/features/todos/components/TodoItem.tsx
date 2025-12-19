@@ -14,9 +14,9 @@ export function TodoItem({ todo, onStatusChange }: TodoItemProps) {
     <li>
       <span>{todo.title}</span>
       <select value={todo.status} onChange={handleStatusChange}>
-        <option value="todo">Todo</option>
+        <option value="pending">Todo</option>
         <option value="in-progress">In Progress</option>
-        <option value="done">Done</option>
+        <option value="completed">Done</option>
       </select>
     </li>
   );
