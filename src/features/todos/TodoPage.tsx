@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AddTodoForm } from './components/AddTodoForm';
 import { TodoList } from './components/TodoList';
-import type { Todo } from './types/todo'; //It improves tree-shaking, avoids accidental runtime imports, and is required when using verbatimModuleSyntax for predictable module output.
+import type { Todo, TodoStatus } from './types/todo';
 
 export function TodosPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -16,11 +16,19 @@ export function TodosPage() {
     setTodos((prev) => [...prev, newTodo]);
   }
 
+  function handleStatusChange(id: string, status: TodoStatus) {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, status } : todo
+      )
+    );
+  }
+
   return (
     <main>
       <h1>TaskFlow</h1>
       <AddTodoForm onAddTodo={handleAddTodo} />
-      <TodoList todos={todos} />
+      <TodoList todos={todos} onStatusChange={handleStatusChange} />
     </main>
   );
 }
