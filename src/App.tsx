@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { TodosPage } from './features/todos/TodoPage';
 
 function App() {
-  return <h1>TaskFlow</h1>;
+  return <TodosPage />;
 }
 
-export default App
+export default App;
