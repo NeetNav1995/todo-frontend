@@ -52,6 +52,10 @@ import { TodoFilter } from './components/TodoFilter';
 import type { Todo } from './types/todo';
 import type { TodoFilter as Filter } from './types/filter';
 import { fetchTodos, addTodoApi, updateTodoStatusApi } from './api/todosApi';
+import { ErrorState } from '../../shared/components/ErrorState';
+import { LoadingSkeleton } from '../../shared/components/LoadingSkelton';
+
+
 
 export function TodosPage() {
   const [filter, setFilter] = useState<Filter>('all');
@@ -133,13 +137,30 @@ const updateStatusMutation = useMutation({
     return todo.status === filter;
   });
 
-  if (isLoading) return <p>Loading todos...</p>;
-  if (isError) return <p>Error loading todos!</p>;
-
+ if (isLoading) {
   return (
     <main>
       <h1>TaskFlow</h1>
-      <AddTodoForm onAddTodo={handleAddTodo} />
+    <LoadingSkeleton/>
+    </main>
+  );
+}
+
+if (isError) {
+  return (
+    <main>
+      <h1>TaskFlow</h1>
+   <ErrorState
+        message="Failed to load tasks."
+        onRetry={() => queryClient.invalidateQueries({ queryKey: ['todos'] })}
+      />
+    </main>
+  );
+}
+  return (
+    <main>
+      <h1>TaskFlow</h1>
+      <AddTodoForm onAddTodo={handleAddTodo} isLoading={addTodoMutation.isPending}/>
       <TodoFilter value={filter} onChange={setFilter} />
       <TodoList todos={filteredTodos} onStatusChange={handleStatusChange} />
     </main>

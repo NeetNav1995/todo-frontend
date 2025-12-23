@@ -2,9 +2,10 @@ import { useState } from 'react';
 
 interface AddTodoFormProps {
   onAddTodo: (title: string) => void;
+   isLoading?: boolean;
 }
 
-export function AddTodoForm({ onAddTodo }: AddTodoFormProps) {
+export function AddTodoForm({ onAddTodo,isLoading }: AddTodoFormProps) {
   const [title, setTitle] = useState('');
 
   function handleSubmit(e: React.FormEvent) {
@@ -22,7 +23,10 @@ export function AddTodoForm({ onAddTodo }: AddTodoFormProps) {
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Add a task"
       />
-      <button type="submit">Add</button>
+      <button type="submit" disabled={isLoading}>
+  {isLoading ? 'Adding...' : 'Add'}
+</button>
+
     </form>
   );
 }
