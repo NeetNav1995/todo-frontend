@@ -34,13 +34,8 @@ export function TodoList({ todos, onStatusChange }: TodoListProps) {
   return (
     <ul>
       {todos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          onStatusChange={onStatusChange}
-        />
+        <TodoItem key={todo.id} todo={todo} onStatusChange={onStatusChange} />
       ))}
     </ul>
   );
 }
-

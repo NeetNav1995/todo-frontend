@@ -47,7 +47,10 @@ export async function addTodoApi(todo: Todo): Promise<Todo> {
   return res.json();
 }
 
-export async function updateTodoStatusApi(id: string, status: Todo['status']): Promise<Todo> {
+export async function updateTodoStatusApi(
+  id: string,
+  status: Todo['status'],
+): Promise<Todo> {
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },

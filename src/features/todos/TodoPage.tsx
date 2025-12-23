@@ -55,70 +55,74 @@ import { fetchTodos, addTodoApi, updateTodoStatusApi } from './api/todosApi';
 import { ErrorState } from '../../shared/components/ErrorState';
 import { LoadingSkeleton } from '../../shared/components/LoadingSkelton';
 
-
-
 export function TodosPage() {
   const [filter, setFilter] = useState<Filter>('all');
   const queryClient = useQueryClient();
 
   // Fetch todos
-  const { data: todos = [], isLoading, isError } = useQuery<Todo[]>({
+  const {
+    data: todos = [],
+    isLoading,
+    isError,
+  } = useQuery<Todo[]>({
     queryKey: ['todos'],
     queryFn: fetchTodos,
   });
 
-//   // Add todo mutation
-//   const addTodoMutation = useMutation({
-//     mutationFn: addTodoApi,
-//     onSuccess: () => queryClient.invalidateQueries({queryKey:['todos']}),
-//   });
+  //   // Add todo mutation
+  //   const addTodoMutation = useMutation({
+  //     mutationFn: addTodoApi,
+  //     onSuccess: () => queryClient.invalidateQueries({queryKey:['todos']}),
+  //   });
 
-//   // Update status mutation
-//   const updateStatusMutation = useMutation({
-//     mutationFn: ({ id, status }: { id: string; status: Todo['status'] }) => updateTodoStatusApi(id, status),
-//     onSuccess: () => queryClient.invalidateQueries({queryKey:['todos']}),
-//   });
-// Add Todo Mutation
-const addTodoMutation = useMutation({
-  mutationFn: addTodoApi,
-  onMutate: async (newTodo) => {
-    await queryClient.cancelQueries({ queryKey: ['todos'] });
-    const previousTodos = queryClient.getQueryData<Todo[]>(['todos']);
-    queryClient.setQueryData<Todo[]>(['todos'], (old = []) => [...old, newTodo]);
-    return { previousTodos };
-  },
-  onError: (_err, _newTodo, context) => {
-    if (context?.previousTodos) {
-      queryClient.setQueryData(['todos'], context.previousTodos);
-    }
-  },
-  onSettled: () => {
-    queryClient.invalidateQueries({ queryKey: ['todos'] });
-  },
-});
+  //   // Update status mutation
+  //   const updateStatusMutation = useMutation({
+  //     mutationFn: ({ id, status }: { id: string; status: Todo['status'] }) => updateTodoStatusApi(id, status),
+  //     onSuccess: () => queryClient.invalidateQueries({queryKey:['todos']}),
+  //   });
+  // Add Todo Mutation
+  const addTodoMutation = useMutation({
+    mutationFn: addTodoApi,
+    onMutate: async (newTodo) => {
+      await queryClient.cancelQueries({ queryKey: ['todos'] });
+      const previousTodos = queryClient.getQueryData<Todo[]>(['todos']);
+      queryClient.setQueryData<Todo[]>(['todos'], (old = []) => [
+        ...old,
+        newTodo,
+      ]);
+      return { previousTodos };
+    },
+    onError: (_err, _newTodo, context) => {
+      if (context?.previousTodos) {
+        queryClient.setQueryData(['todos'], context.previousTodos);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
 
-// Update Status Mutation
-const updateStatusMutation = useMutation({
-  mutationFn: ({ id, status }: { id: string; status: Todo['status'] }) =>
-    updateTodoStatusApi(id, status),
-  onMutate: async ({ id, status }) => {
-    await queryClient.cancelQueries({ queryKey: ['todos'] });
-    const previousTodos = queryClient.getQueryData<Todo[]>(['todos']);
-    queryClient.setQueryData<Todo[]>(['todos'], (old = []) =>
-      old.map((todo) => (todo.id === id ? { ...todo, status } : todo))
-    );
-    return { previousTodos };
-  },
-  onError: (_err, _variables, context) => {
-    if (context?.previousTodos) {
-      queryClient.setQueryData(['todos'], context.previousTodos);
-    }
-  },
-  onSettled: () => {
-    queryClient.invalidateQueries({ queryKey: ['todos'] });
-  },
-});
-
+  // Update Status Mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: Todo['status'] }) =>
+      updateTodoStatusApi(id, status),
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: ['todos'] });
+      const previousTodos = queryClient.getQueryData<Todo[]>(['todos']);
+      queryClient.setQueryData<Todo[]>(['todos'], (old = []) =>
+        old.map((todo) => (todo.id === id ? { ...todo, status } : todo)),
+      );
+      return { previousTodos };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousTodos) {
+        queryClient.setQueryData(['todos'], context.previousTodos);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
 
   function handleAddTodo(title: string) {
     addTodoMutation.mutate({
@@ -137,30 +141,33 @@ const updateStatusMutation = useMutation({
     return todo.status === filter;
   });
 
- if (isLoading) {
-  return (
-    <main>
-      <h1>TaskFlow</h1>
-    <LoadingSkeleton/>
-    </main>
-  );
-}
+  if (isLoading) {
+    return (
+      <main>
+        <h1>TaskFlow</h1>
+        <LoadingSkeleton />
+      </main>
+    );
+  }
 
-if (isError) {
+  if (isError) {
+    return (
+      <main>
+        <h1>TaskFlow</h1>
+        <ErrorState
+          message="Failed to load tasks."
+          onRetry={() => queryClient.invalidateQueries({ queryKey: ['todos'] })}
+        />
+      </main>
+    );
+  }
   return (
     <main>
       <h1>TaskFlow</h1>
-   <ErrorState
-        message="Failed to load tasks."
-        onRetry={() => queryClient.invalidateQueries({ queryKey: ['todos'] })}
+      <AddTodoForm
+        onAddTodo={handleAddTodo}
+        isLoading={addTodoMutation.isPending}
       />
-    </main>
-  );
-}
-  return (
-    <main>
-      <h1>TaskFlow</h1>
-      <AddTodoForm onAddTodo={handleAddTodo} isLoading={addTodoMutation.isPending}/>
       <TodoFilter value={filter} onChange={setFilter} />
       <TodoList todos={filteredTodos} onStatusChange={handleStatusChange} />
     </main>

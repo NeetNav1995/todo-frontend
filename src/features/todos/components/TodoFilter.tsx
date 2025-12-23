@@ -8,10 +8,7 @@ interface TodoFilterProps {
 export function TodoFilter({ value, onChange }: TodoFilterProps) {
   return (
     <div>
-      <button
-        onClick={() => onChange('all')}
-        disabled={value === 'all'}
-      >
+      <button onClick={() => onChange('all')} disabled={value === 'all'}>
         All
       </button>
       <button
